@@ -37,8 +37,8 @@ ollama pull llama3
 ### 2. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/js-analyze-ai.git
-cd js-analyze-ai
+git clone https://github.com/cyberakanksha/ai-js-analyzer.git
+cd ai-js-analyzer
 ```
 
 ---
