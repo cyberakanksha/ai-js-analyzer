@@ -50,25 +50,83 @@ def read_file(path):
 
 def analyze(model, content, src):
     prompt = f"""
-You are a professional bug bounty hunter.
+You are an expert Senior Security Researcher and Bug Bounty Hunter.
 
-Analyze this JavaScript and extract:
+Perform a deep security and functionality analysis of the provided JavaScript file.
 
-- functionality summary
-- all URLs
-- API endpoints
-- subdomains
-- paths
-- hardcoded secrets
-- authentication logic
-- vulnerabilities
-- attack surface
+Your analysis MUST be extremely detailed and structured.
 
-Source: {src}
+Return results using the following sections:
 
-Code:
+==============================
+1. FUNCTIONALITY SUMMARY
+- Describe the complete purpose of the script
+- Explain important logic and workflows
+
+==============================
+2. DISCOVERED ENDPOINTS
+- List all API endpoints
+- Include HTTP methods if detectable
+- Mark sensitive endpoints (auth, admin, upload, internal)
+
+==============================
+3. DISCOVERED URLS & SUBDOMAINS
+- Extract all full URLs
+- Extract relative paths
+- Extract subdomains
+- Highlight internal/private endpoints
+
+==============================
+4. PARAMETERS & DATA FLOW
+- Identify parameters sent in requests
+- Identify authentication tokens, cookies, headers
+- Describe how user input flows through the code
+
+==============================
+5. HARD-CODED SECRETS
+- API keys
+- Tokens
+- Credentials
+- Private identifiers
+- Encryption keys
+
+==============================
+6. AUTHENTICATION / AUTHORIZATION LOGIC
+- Login flows
+- Session handling
+- Token generation/validation
+- Permission checks
+
+==============================
+7. POTENTIAL SECURITY VULNERABILITIES
+Evaluate possible:
+- IDOR
+- SSRF
+- XSS
+- Open Redirect
+- Injection points
+- Sensitive data exposure
+- Logic flaws
+- Client-side trust issues
+
+Explain WHY each issue may be exploitable.
+
+==============================
+8. ATTACK SURFACE SUMMARY
+Provide a concise list of:
+- interesting endpoints
+- sensitive functions
+- possible attack entry points
+
+==============================
+
+Source:
+{src}
+
+JavaScript Code:
 {content}
 """
+
 
     payload = {
         "model": model,
