@@ -1,40 +1,49 @@
-# JS Analyze AI – JavaScript Security Analyzer
+# JS Analyze AI – Local JavaScript Security Analyzer (Ollama Edition)
 
-AI-powered JavaScript analysis tool that helps bug hunters automatically extract:
+JS Analyze AI is a **local AI-powered JavaScript security analysis tool** designed for bug hunters, security researchers, and recon automation workflows.
 
-* Application logic
-* API endpoints
-* URLs & subdomains
-* Paths
-* Hardcoded secrets
-* Authentication flows
-* Vulnerabilities & attack surface
-
-The tool uses **Google Gemini models** to perform deep security analysis on JavaScript files.
+This version runs **fully offline using local Ollama models**, so **no API key is required**.
 
 ---
 
 ## Features
 
-* Analyze **remote JS files**
-* Analyze **local JS files**
-* Analyze **multiple JS URLs**
-* Store API key once (no need to enter again)
-* Works on **Windows and Linux**
-* Designed for **bug bounty recon workflows**
+* Analyze **remote JavaScript URLs**
+* Analyze **local JavaScript files**
+* Analyze **multiple JS files from a list**
+* Uses **local Ollama AI models**
+* One-time model configuration
+* Works on **Linux, Windows, and macOS**
+* Designed for **bug bounty recon automation**
 
 ---
 
 ## Installation
 
-Clone the repository:
+### 1. Install Ollama
+
+Download and install:
+
+https://ollama.com
+
+Then pull a model (example):
+
+```bash
+ollama pull llama3
+```
+
+---
+
+### 2. Clone the repository
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/js-analyze-ai.git
 cd js-analyze-ai
 ```
 
-Install dependencies:
+---
+
+### 3. Install Python requirements
 
 ```bash
 pip install -r requirements.txt
@@ -42,31 +51,35 @@ pip install -r requirements.txt
 
 ---
 
-## Setup API Key (one-time)
+## One-Time Model Setup
+
+Set the default Ollama model (only once):
 
 ```bash
-python js_analyze.py --set-key YOUR_GEMINI_API_KEY
+python js_analyze.py --set-model llama3
 ```
+
+The model name will be saved automatically and used for all future runs.
 
 ---
 
 ## Usage
 
-### Analyze a single JS URL
+### Analyze a remote JavaScript file
 
 ```bash
 python js_analyze.py -u https://target.com/app.js
 ```
 
-### Analyze a local JS file
+### Analyze a local JavaScript file
 
 ```bash
 python js_analyze.py -f app.js
 ```
 
-### Analyze multiple JS URLs
+### Analyze multiple JavaScript URLs
 
-Create `urls.txt`:
+Create a file `urls.txt`:
 
 ```
 https://target.com/app.js
@@ -81,36 +94,26 @@ python js_analyze.py -o urls.txt
 
 ---
 
-## Example Output
+## Output
 
 The tool automatically extracts:
 
-* Endpoints
-* Secrets
-* URLs
-* Subdomains
+* Application logic summary
+* API endpoints
+* URLs & subdomains
+* Paths
+* Hardcoded secrets
 * Authentication logic
 * Vulnerability hints
-* Recon attack surface
+* Attack surface
 
 ---
 
 ## requirements.txt
 
 ```
-google-genai
 requests
 ```
-
----
-
-## Use Cases
-
-* Bug bounty recon automation
-* JavaScript endpoint discovery
-* API hunting
-* Secret exposure detection
-* Hidden attack surface discovery
 
 ---
 
@@ -119,3 +122,4 @@ requests
 This tool is intended for **authorized security testing, bug bounty programs, and educational purposes only**.
 Do not use against systems without permission.
 
+---
