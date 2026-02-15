@@ -3,11 +3,9 @@ import argparse
 import requests
 import os
 import json
-from google import genai
 
-MODEL = "models/gemini-2.5-pro"
+OLLAMA_URL = "http://localhost:11434/api/generate"
 
-# ---------- CONFIG PATH CROSS PLATFORM ----------
 def get_config_path():
     if os.name == "nt":
         base = os.path.join(os.environ["USERPROFILE"], ".js_analyze")
@@ -19,22 +17,20 @@ def get_config_path():
 
 CONFIG_PATH = get_config_path()
 
-# ---------- SAVE API KEY ----------
-def save_api_key(key):
+def save_model(model):
+    data = {"model": model}
     with open(CONFIG_PATH, "w") as f:
-        json.dump({"api_key": key}, f)
-    print(f"[+] API key saved to {CONFIG_PATH}")
+        json.dump(data, f)
+    print(f"[+] Default model saved: {model}")
 
-# ---------- LOAD API KEY ----------
-def load_api_key():
+def load_model():
     if not os.path.exists(CONFIG_PATH):
-        print("[!] API key not set. Run:\npython js_analyze.py --set-key YOUR_KEY")
+        print("[!] Model not configured. Run:\npython js_analyze.py --set-model llama3")
         exit(1)
 
     with open(CONFIG_PATH) as f:
-        return json.load(f)["api_key"]
+        return json.load(f)["model"]
 
-# ---------- FETCH JS ----------
 def fetch_js(url):
     try:
         r = requests.get(url, timeout=20)
@@ -44,7 +40,6 @@ def fetch_js(url):
         print(f"[!] Failed fetching {url}: {e}")
         return None
 
-# ---------- READ LOCAL FILE ----------
 def read_file(path):
     try:
         with open(path, "r", errors="ignore") as f:
@@ -53,8 +48,7 @@ def read_file(path):
         print(f"[!] Failed reading {path}: {e}")
         return None
 
-# ---------- GEMINI ANALYSIS ----------
-def analyze(client, content, src):
+def analyze(model, content, src):
     prompt = f"""
 You are a professional bug bounty hunter.
 
@@ -76,19 +70,22 @@ Code:
 {content}
 """
 
-    response = client.models.generate_content(
-        model=MODEL,
-        contents=prompt
-    )
+    payload = {
+        "model": model,
+        "prompt": prompt,
+        "stream": False
+    }
+
+    r = requests.post(OLLAMA_URL, json=payload)
+    result = r.json()["response"]
 
     print("\n========== ANALYSIS ==========\n")
-    print(response.text)
+    print(result)
     print("\n==============================\n")
 
-# ---------- MAIN ----------
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--set-key", help="Save API key once")
+    parser.add_argument("--set-model", help="Set default Ollama model once")
 
     parser.add_argument("-u", "--url")
     parser.add_argument("-f", "--file")
@@ -96,23 +93,21 @@ def main():
 
     args = parser.parse_args()
 
-    # set key mode
-    if args.set_key:
-        save_api_key(args.set_key)
+    if args.set_model:
+        save_model(args.set_model)
         return
 
-    api_key = load_api_key()
-    client = genai.Client(api_key=api_key)
+    model = load_model()
 
     if args.url:
         js = fetch_js(args.url)
         if js:
-            analyze(client, js, args.url)
+            analyze(model, js, args.url)
 
     elif args.file:
         js = read_file(args.file)
         if js:
-            analyze(client, js, args.file)
+            analyze(model, js, args.file)
 
     elif args.list:
         with open(args.list) as f:
@@ -123,11 +118,10 @@ def main():
                 print(f"\n[+] Processing {u}")
                 js = fetch_js(u)
                 if js:
-                    analyze(client, js, u)
+                    analyze(model, js, u)
 
     else:
         parser.print_help()
 
 if __name__ == "__main__":
     main()
-
